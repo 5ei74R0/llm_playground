@@ -28,6 +28,6 @@ jobs:
           python3 -m pip install "black>=23.3.0"
           python3 -m black .
       - name: Auto Commit
-        uses: stefanzweifel/git-auto-commit-action@v4.2
+        uses: stefanzweifel/git-auto-commit-action@v4.2.0
         with:
           commit_message: Apply ruff & black
