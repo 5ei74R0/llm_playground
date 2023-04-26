@@ -18,8 +18,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install -e ./
+        run: python3 -m pip install -e ./
       - name: Formatting w/ ruff
-        run: python -m ruff . --fix
+        run: python3 -m ruff . --fix
       - name: Formatting w/ black
-        run: python -m black .
+        run: python3 -m black .
