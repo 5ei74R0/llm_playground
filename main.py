@@ -9,7 +9,9 @@ def main(
     model: str,
 ):
     print(f"dataset: {dataset}")
-    print(f"model: {model}")
+    print(
+        f"model: {model}"
+    )
 
 
 if __name__ == "__main__":
