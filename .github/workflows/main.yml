@@ -2,31 +2,31 @@ name: CI/CD with GitHub Actions
 
 on:
   push:
-  
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10"]
+        poetry-version: ["1.4.2"]
+        os: [ubuntu-20.04, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run image
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9.14'
-
-    - name: Install Poetry
-      run: curl -sSL https://install.python-poetry.org | python3 - --version 1.4.2
-    
-    - name: Setup env.
-      run: poetry env use 3.9.14 && poetry shell
-      
     - name: Install only dev. dependencies
-      run: poetry install --only dev --sync
+      run: poetry install --only dev
 
     - name: Run black
-      run: black .
+      run: poetry run black .
 
     - name: Run ruff
-      run: ruff . --fix
-
+      run: poetry run ruff . --fix
