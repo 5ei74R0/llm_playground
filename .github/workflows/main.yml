@@ -19,7 +19,7 @@ jobs:
       run: curl -sSL https://install.python-poetry.org | python3 - --version 1.4.2
     
     - name: Setup env.
-      run: peotry env use 3.9.14 && poetry shell
+      run: poetry env use 3.9.14 && poetry shell
       
     - name: Install only dev. dependencies
       run: poetry install --only dev --sync
