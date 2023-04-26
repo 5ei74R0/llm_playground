@@ -14,8 +14,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    permissions:
-      actions: read|write
+    permissions: read-all|write-all
 
     steps:
       - uses: actions/checkout@v3
