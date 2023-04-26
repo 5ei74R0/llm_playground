@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
@@ -30,7 +31,6 @@ jobs:
           python3 -m pip install "black>=23.3.0"
           python3 -m black .
       - name: Auto Commit
-        uses: stefanzweifel/git-auto-commit-action@v4.2.0
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Apply ruff & black
-          ref: ${{ github.head_ref }}
