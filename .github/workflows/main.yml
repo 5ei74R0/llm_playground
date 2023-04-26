@@ -1,0 +1,39 @@
+name: CI/CD with GitHub Actions
+
+on:
+  push:
+
+jobs:
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9"]
+        poetry-version: ["1.4"]
+        os: [ubuntu-20.04]
+
+    runs-on: ${{ matrix.os }}
+
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Upgrade pip
+        run: python3 -m pip install --upgrade pip
+      - name: Formatting w/ ruff
+        run: |
+          python3 -m pip install "ruff>=0.0.241,<=0.0.259"
+          python3 -m ruff . --fix
+      - name: Formatting w/ black
+        run: |
+          python3 -m pip install "black>=23.3.0"
+          python3 -m black .
+      - name: Auto Commit
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "[fix] auto formatting w/ ruff & black"
