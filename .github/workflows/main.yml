@@ -15,14 +15,14 @@ jobs:
       with:
         python-version: '3.9.14'
 
+    - name: Update pip
+      run: python -m pip install --upgrade pip
+
     - name: Install Poetry
-      run: curl -sSL https://install.python-poetry.org | python3 - --version 1.4.2
-    
-    - name: Setup env.
-      run: poetry env use 3.9.14 && poetry shell
-      
+      run: pip install "poetry>=1.4.2"
+
     - name: Install only dev. dependencies
-      run: poetry install --only dev --sync
+      run: poetry install --no-interaction --only dev --sync
 
     - name: Run black
       run: black .
