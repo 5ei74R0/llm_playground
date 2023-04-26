@@ -11,7 +11,12 @@ jobs:
         python-version: ["3.9"]
         poetry-version: ["1.4"]
         os: [ubuntu-20.04]
+
     runs-on: ${{ matrix.os }}
+
+    permissions:
+      actions: read|write
+
     steps:
       - uses: actions/checkout@v3
         with:
