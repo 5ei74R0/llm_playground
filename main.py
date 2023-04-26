@@ -8,12 +8,8 @@ def main(
     dataset: str,
     model: str,
 ):
-    print(
-        f"dataset: {dataset}"
-          )
-    print(
-        f"model: {model}"
-    )
+    print(f"dataset: {dataset}")
+    print(f"model: {model}")
 
 
 if __name__ == "__main__":
