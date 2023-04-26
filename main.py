@@ -8,7 +8,9 @@ def main(
     dataset: str,
     model: str,
 ):
-    print(f"dataset: {dataset}")
+    print(
+        f"dataset: {dataset}"
+          )
     print(
         f"model: {model}"
     )
