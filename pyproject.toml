@@ -1,0 +1,51 @@
+[tool.black]
+line-length = 119
+target-version = ['py39']
+
+[tool.mypy]
+python_version = "3.9"
+
+[tool.ruff]
+# Never enforce `E501` (line length violations).
+ignore = ["C901", "E501", "E741", "W605"]
+select = ["C", "E", "F", "I", "W"]
+line-length = 119
+
+# Ignore import violations in all `__init__.py` files.
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["E402", "F401", "F403", "F811"]
+
+[tool.ruff.isort]
+lines-after-imports = 2
+known-first-party = ["llm_playground"]
+
+# Above lines are ported from https://github.com/huggingface/transformers/tree/v4.28.1/pyproject.toml and modified.
+
+[tool.poetry]
+name = "llm-playground"
+version = "0.1.0"
+description = "benchmarking & experiment"
+authors = ["5ei74R0 <XXXXXXX.X@XXXXX.XXX>"]
+license = "BSD-3-Clause-Clear"
+readme = "README.md"
+packages = [{include = "llm_playground"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+torch = "^2.0.0"
+peft = {git = "https://github.com/huggingface/peft.git", rev = "v0.2.0"}
+fire = "^0.5.0"
+datasets = {git = "https://github.com/huggingface/datasets.git", rev = "2.11.0"}
+bitsandbytes = "^0.38.1"
+transformers = {git = "https://github.com/huggingface/transformers.git", rev = "v4.28.1"}
+evaluate = {git = "https://github.com/huggingface/evaluate.git", rev = "v0.4.0"}
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.2.0"
+black = "^23.3.0"
+ruff = ">=0.0.241,<=0.0.259"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

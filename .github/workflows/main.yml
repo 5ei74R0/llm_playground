@@ -1,0 +1,32 @@
+name: CI/CD with GitHub Actions
+
+on:
+  push:
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9.14'
+
+    - name: Install Poetry
+      run: curl -sSL https://install.python-poetry.org | python3 - --version 1.4.2
+
+    - name: Activate peotry
+      run: poetry shell 
+      
+    - name: Install only dev. dependencies
+      run: poetry install --only dev --sync
+
+    - name: Run black
+      run: black .
+
+    - name: Run ruff
+      run: ruff . --fix
+
