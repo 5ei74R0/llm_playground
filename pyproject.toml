@@ -39,6 +39,7 @@ datasets = {git = "https://github.com/huggingface/datasets.git", rev = "2.11.0"}
 bitsandbytes = "^0.38.1"
 transformers = {git = "https://github.com/huggingface/transformers.git", rev = "v4.28.1"}
 evaluate = {git = "https://github.com/huggingface/evaluate.git", rev = "v0.4.0"}
+torchtext = "^0.15.1"
 
 
 [tool.poetry.group.dev.dependencies]
