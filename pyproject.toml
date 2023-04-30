@@ -31,7 +31,7 @@ readme = "README.md"
 packages = [{include = "llm_playground"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 torch = "^2.0.0"
 peft = {git = "https://github.com/huggingface/peft.git", rev = "v0.2.0"}
 fire = "^0.5.0"
@@ -41,6 +41,7 @@ transformers = {git = "https://github.com/huggingface/transformers.git", rev = "
 evaluate = {git = "https://github.com/huggingface/evaluate.git", rev = "v0.4.0"}
 torchtext = "^0.15.1"
 portalocker = ">=2.0.0"
+scipy = "^1.10.1"
 
 
 [tool.poetry.group.dev.dependencies]
