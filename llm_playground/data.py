@@ -215,11 +215,11 @@ class PostProcessorStsb(PostProcessor):
             raise ValueError("In this case, BatchEncodingPlus must have score attribute")
         return EvalInput(
             [parse_s2f(pred) for pred in decoded_prediction],
-            batch.score,
+            batch.score.tolist(),
         )
 
 
-class EvaluatorSTSB(Evaluator):
+class EvaluatorStsb(Evaluator):
     def __init__(self) -> None:
         self.prediction_container: list[float] = []
         self.answer_container: list[float] = []
@@ -231,8 +231,8 @@ class EvaluatorSTSB(Evaluator):
 
     def compute(self) -> dict[str, Any]:
         return {
-            "pearson": pearsonr(self.prediction_container, self.answer_container) * 100,
-            "spearman": spearmanr(self.prediction_container, self.answer_container) * 100,
+            "pearson": pearsonr(self.prediction_container, self.answer_container)[0] * 100,
+            "spearman": spearmanr(self.prediction_container, self.answer_container)[0] * 100,
         }
 
     def reset(self) -> None:
@@ -248,7 +248,7 @@ def dataset_provider(
             DatasetFetcherStsb(),
             PreProcessorStsb(tokenizer, max_length=max_length),
             PostProcessorStsb(),
-            EvaluatorSTSB(),
+            EvaluatorStsb(),
         )
     else:
         raise ValueError(f"Unknown task type: {task_type}")

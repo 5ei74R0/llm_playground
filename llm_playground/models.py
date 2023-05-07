@@ -1,5 +1,6 @@
 import os
-from typing import Literal, Union
+import shutil
+from typing import Literal, Optional, Union
 
 import bitsandbytes as bnb
 import torch
@@ -191,6 +192,9 @@ class T5Trainer:
             dataset_fetcher, data_preprocessor, micro_batch_size, eval_batch_size
         )
 
+        # Setup
+        min_loss = float("inf")
+        save_dir_name: Optional[str] = None
         global_step = 0
         gradient_accumulation_steps = batch_size // micro_batch_size
         estimated_total_steps = self._estimate_total_steps(gradient_accumulation_steps, epochs, train_dataloader)
@@ -249,7 +253,11 @@ class T5Trainer:
                     print(f"Epoch {epoch_idx:02d}, Step {global_step:06d}, Eval: {eval_result}")
 
                 if global_step % save_steps == 0:
-                    self.model.save_pretrained(f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}")
+                    if loss.item() < min_loss:
+                        if save_dir_name is not None:
+                            shutil.rmtree(save_dir_name)
+                        self.model.save_pretrained(f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}")
+                        save_dir_name = f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}"
 
         # Test
         evaluator.reset()
