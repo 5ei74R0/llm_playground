@@ -6,6 +6,7 @@ import bitsandbytes as bnb
 import torch
 from peft import LoraConfig, PeftModel, get_peft_model, prepare_model_for_int8_training
 from peft.import_utils import is_bnb_available
+from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers.data.data_collator import DataCollatorForSeq2Seq
@@ -201,7 +202,7 @@ class T5Trainer:
             total=estimated_total_steps, desc="Training", position=0, leave=True, dynamic_ncols=True
         )
         optimizer = self._get_optimizer(optimizer_name, learning_rate)
-        scheduler = get_scheduler(
+        scheduler: LRScheduler = get_scheduler(
             name="linear",
             optimizer=optimizer,
             num_warmup_steps=num_warmup_steps,
@@ -238,8 +239,8 @@ class T5Trainer:
                         self.model.save_pretrained(f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}")
 
             if not drop_last and batch_idx % gradient_accumulation_steps != 0:
-                outputs.loss.backward()
                 optimizer.step()
+                scheduler.step()
                 global_step += 1
                 for param in self.model.parameters():  # fast zero_grad
                     param.grad = None
