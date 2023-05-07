@@ -1,16 +1,10 @@
-from collections import UserDict
-from typing import Any, Callable, Dict, Literal, NamedTuple, Optional, Sequence, Union
+from typing import Any, Literal, NamedTuple, Optional
 
-import torch
 from scipy.stats import pearsonr, spearmanr
-from tokenizers import Encoding as EncodingFast
 from torch.utils.data import IterDataPipe
 from torchtext.datasets import STSB
 from transformers.data.data_collator import DataCollatorForSeq2Seq
-from transformers.tokenization_utils_base import BatchEncoding, EncodingFast, PreTrainedTokenizerBase, logger
-from transformers.utils import PaddingStrategy, TensorType
-from transformers.utils.generic import is_torch_device
-from transformers.utils.import_utils import requires_backends
+from transformers.tokenization_utils_base import BatchEncoding, PreTrainedTokenizerBase
 
 
 # # class BatchEncodingPlus(UserDict):
