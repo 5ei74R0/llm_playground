@@ -8,7 +8,6 @@ from peft.import_utils import is_bnb_available
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers.data.data_collator import DataCollatorForSeq2Seq
-from transformers.generation.configuration_utils import GenerationConfig
 from transformers.modeling_outputs import Seq2SeqLMOutput
 from transformers.modeling_utils import PreTrainedModel
 from transformers.models.t5.modeling_t5 import T5ForConditionalGeneration
