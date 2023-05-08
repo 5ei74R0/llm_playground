@@ -28,6 +28,7 @@ class T5Trainer:
         pretrained_model_path: str = "google/flan-t5-xl",
         pretrained_tokenizer_path: str = "google/flan-t5-xl",
         load_in_8bit: bool = True,
+        use_gradient_checkpointing: bool = True,
     ) -> None:
         super().__init__()
         # Validate inputs
@@ -46,8 +47,14 @@ class T5Trainer:
             device_map="auto",
         )
         if load_in_8bit:
-            self.base_model = self._typing_wrapped_prepare_model_for_int8_training(self.base_model)
+            self.base_model = self._typing_wrapped_prepare_model_for_int8_training(
+                self.base_model, use_gradient_checkpointing
+            )
+
+        # Wrap base_model
         self.model: Union[PreTrainedModel, PeftModel] = get_peft_model(self.base_model, lora_cfg)
+        if use_gradient_checkpointing:
+            self.model.config.use_cache = False
 
     @torch.inference_mode()
     def _eval_loop(self, dataloader, postprocessor, evaluator: Evaluator):
@@ -170,8 +177,6 @@ class T5Trainer:
         logging_steps: int,
         eval_steps: int,
         save_steps: int,
-        # train_dataloader: DataLoader,
-        # eval_dataloader: DataLoader,
         evaluator: Evaluator,
         dataset_fetcher: DatasetFetcher,
         data_preprocessor: PreProcessor,
@@ -182,10 +187,6 @@ class T5Trainer:
         # Validate inputs
         if batch_size % micro_batch_size != 0:
             raise ValueError("Batch size must be divisible by micro batch size.")
-        # if train_dataloader.batch_size != micro_batch_size:
-        #     raise ValueError("Train dataloader batch size must be equal to micro batch size.")
-        # if eval_dataloader.batch_size != eval_batch_size:
-        #     raise ValueError("Eval dataloader batch size must be equal to eval batch size.")
 
         # Prepare Dataloader
         train_dataloader, eval_dataloader, test_dataloader = self._prepare_dataloaders(
@@ -194,7 +195,7 @@ class T5Trainer:
 
         # Setup
         min_loss = float("inf")
-        save_dir_name: Optional[str] = None
+        lora_saved_dir: Optional[str] = None
         global_step = 0
         gradient_accumulation_steps = batch_size // micro_batch_size
         estimated_total_steps = self._estimate_total_steps(gradient_accumulation_steps, epochs, train_dataloader)
@@ -236,7 +237,11 @@ class T5Trainer:
                         print(f"Epoch {epoch_idx:02d}, Step {global_step:06d}, Eval: {eval_result}")
 
                     if global_step % save_steps == 0:
-                        self.model.save_pretrained(f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}")
+                        if loss.item() < min_loss:
+                            if lora_saved_dir is not None:
+                                shutil.rmtree(lora_saved_dir)
+                            self.model.save_pretrained(f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}")
+                            lora_saved_dir = f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}"
 
             if not drop_last and batch_idx % gradient_accumulation_steps != 0:
                 optimizer.step()
@@ -254,12 +259,14 @@ class T5Trainer:
 
                 if global_step % save_steps == 0:
                     if loss.item() < min_loss:
-                        if save_dir_name is not None:
-                            shutil.rmtree(save_dir_name)
+                        if lora_saved_dir is not None:
+                            shutil.rmtree(lora_saved_dir)
                         self.model.save_pretrained(f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}")
-                        save_dir_name = f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}"
+                        lora_saved_dir = f"{save_to}-epoch-{epoch_idx:02d}-step-{global_step:06d}"
 
-        # Test
+        # Test (Restore the best model & evaluate)
+        self.model = PeftModel.from_pretrained(self.base_model, lora_saved_dir, torch_dtype=self.base_model.dtype)
+        self.model.eval()
         evaluator.reset()
         test_result = self._eval_loop(test_dataloader, data_postprocessor, evaluator)
         print(f"Test: {test_result}")
