@@ -148,7 +148,8 @@ def parse_s2f(s: str, default: int = -1) -> float:
 
 class DatasetFetcherStsb(DatasetFetcher):
     def __call__(self, dataset: Optional[str] = None) -> tuple[IterDataPipe, IterDataPipe, IterDataPipe]:
-        train, dev, test = STSB()
+        root = "./" if dataset is None else dataset
+        train, dev, test = STSB(root)
         return train, dev, test
 
 
